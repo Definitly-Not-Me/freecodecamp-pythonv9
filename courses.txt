@@ -1,0 +1,2451 @@
+
+    Python Certification
+    Understanding Object Oriented Programming and Encapsulation
+
+What is Object-Oriented Programming, and How Does Encapsulation Work?
+
+Object-oriented programming, also known as OOP, is a programming style in which developers treat everything in their code like a real-world object.
+
+A class is like a blueprint for creating objects. Every single object created from a class has attributes that define data and methods that define the behaviors of the objects.
+
+In a previous lesson, you learned how to create classes. Here's a reminder of the syntax:
+
+class ClassName:
+   def __init__(self, parameters):
+       attribute = value
+
+   def method_name(self):
+       # method logic
+
+Here's an example of a class that uses the __init__ special method to initialize the brand and color attributes whenever an object is created using the class:
+
+class Car:
+   def __init__(self, brand, color):
+       self.brand = brand
+       self.color = color
+
+# create two objects from the Car class
+car1 = Car('Toyota', 'red')
+car2 = Car('Lambo', 'green')
+
+print('Car 1 Brand:', car1.brand) # Car 1 Brand: Toyota
+print('Car 1 Color:', car1.color) # Car 1 Color: red
+
+print('Car 2 Brand:', car2.brand) # Car 2 Brand: Lambo
+print('Car 2 Color:', car2.color) # Car 2 Color: green
+
+Object-oriented programming has four key principles that help you organize and manage code effectively. They are encapsulation, inheritance, polymorphism, and abstraction.
+
+The rest of this lesson will focus on how encapsulation works.
+
+Encapsulation is the bundling of the attributes and methods of an object into a single unit, the class.
+
+With encapsulation, you can hide the internal state of the object behind a simple set of public methods and attributes that act like doors. Behind those doors are private attributes and methods that control how the data changes and who can see it.
+
+Let's say you want to track a wallet balance. You want to allow people to deposit or withdraw money from the wallet, but no one should be able to tamper with the balance directly.
+
+In that case, you can make deposit() and withdraw() public methods, and you hide the balance under the _balance attribute:
+
+class Wallet:
+   def __init__(self, balance):
+       self._balance = balance # For internal use by convention
+
+   def deposit(self, amount):
+       if amount > 0:
+           self._balance += amount # Add to the balance safely
+
+   def withdraw(self, amount):
+       if 0 < amount <= self._balance:
+           self._balance -= amount # Remove from the balance safely
+
+By convention, prefixing attribute and methods with a single underscore means they are meant for internal use. No one should directly access them from outside the class since it defies the principles of encapsulation, which can lead to bugs.
+
+While a single underscore prefix is just a convention, prefixing attributes and methods with a double underscore effectively prevents them to be accessed from the outside of their class, making those attributes and methods private.
+
+class Wallet:
+   def __init__(self, balance):
+       self.__balance = balance # Private attribute
+
+   def deposit(self, amount):
+       if amount > 0:
+           self.__balance += amount # Add to the balance safely
+
+   def withdraw(self, amount):
+       if 0 < amount <= self.__balance:
+           self.__balance -= amount # Remove from the balance safely
+
+account = Wallet(500)
+print(account.__balance) # AttributeError: 'Wallet' object has no attribute '__balance'
+
+To get the current value of __balance, you can define a get_balance method. For example:
+
+class Wallet:
+   def __init__(self, balance):
+       self.__balance = balance
+
+   def deposit(self, amount):
+       if amount > 0:
+           self.__balance += amount
+
+   def withdraw(self, amount):
+       if 0 < amount <= self.__balance:
+           self.__balance -= amount
+  
+   def get_balance(self):
+       return self.__balance
+
+
+acct_one = Wallet(100)
+acct_one.deposit(50)
+print(acct_one.get_balance()) # 150
+
+acct_two = Wallet(450)
+acct_two.withdraw(28)
+print(acct_two.get_balance()) # 422
+
+acct_two.deposit(150)
+print(acct_two.get_balance()) # 572
+
+You can also define a private __validate method to check if every deposit or withdrawal amount is a positive number:
+
+class Wallet:
+   def __init__(self):
+       self.__balance = 0
+
+   def __validate(self, amount):
+       if amount < 0:
+           raise ValueError('Amount must be positive')
+
+   def deposit(self, amount):
+       self.__validate(amount)
+       self.__balance += amount
+
+   def withdraw(self, amount):
+       self.__validate(amount)
+       if amount > self.__balance:
+           raise ValueError('Insufficient funds')
+       self.__balance -= amount
+
+   def get_balance(self):
+       return self.__balance
+
+acct_one = Wallet()
+acct_one.deposit(3)
+print(acct_one.get_balance()) # 3
+
+acct_one.deposit(50)
+print(acct_one.get_balance()) # 53
+
+acct_one.deposit(-4)  # ValueError: Amount must be positive
+acct_one.withdraw(-8) # ValueError: Amount must be positive
+acct_one.withdraw(58) # ValueError: Insufficient funds
+
+As you can see, the __validate method is private, and runs behind the scenes in the deposit() and withdraw() public methods to make sure the amount is always valid.
+
+In a coming lesson, you will learn more about how attributes prefixed with a double underscore works.
+
+In summary, encapsulation locks down internal data behind clear public methods. That's how you keep your classes safe from tampering and centralize validation in one place. You can update or extend your code freely, knowing that outside code only touches the interfaces you expose.
+Questions
+
+What are the four key principles of Object-Oriented Programming (OOP)?
+Encapsulation, Inheritance, Polymorphism, Abstraction
+Variables, Functions, Loops, Conditionals
+Classes, Objects, Methods, Attributes
+Public, Private, Protected, Static
+
+Why is it a bad practice to directly access attribute/methods prefixed with a single underscore?
+Because Python will raise a syntax error if you try.
+Because it violates encapsulation, allowing uncontrolled data access.
+Because private properties are slower to access than public ones.
+Because they can only be accessed from child classes.
+
+What is the way for indicating private attributes or methods?
+Prefix with a single underscore
+Use leading and trailing double underscores
+Prefix with a double underscore
+Use the private keyword
+
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Object Oriented Programming and Encapsulation
+
+What are Getters and Setters
+
+Getters and setters are methods that let you control how the attributes of a class are accessed and modified. With getters you retrieve a value, and with setters you set a value.
+
+These actions are done through what's known as properties. They are what connect getters and setters, and allow access to data.
+
+Properties act like attributes but behave like methods under the hood. Think of them as data you define like methods, but work like attributes. This means you can access properties with dot notation instead of parentheses or round brackets.
+
+The main thing properties do is that they run extra logic behind the scenes when you get, set, or delete values with them. This makes them the perfect choice when you want to access or manipulate data within objects.
+
+So why use properties for that instead of methods? It's mostly about readability and convention. They make your code cleaner and easier to read.
+
+When you use a method, you always have to call it with parentheses. But with a property, you can access it just like a normal attribute using dot notation. That makes your code look simple even when it is doing extra work behind the scenes.
+
+For example, you might want to calculate a value or check that a new value is valid before saving it. Instead of calling a method for that, you can use an attribute-like way to do that.
+
+In Python, a decorator is a function that modifies the functionalities of other functions, or classes, without changing their original code.
+
+While it is possible to create custom decorators, this is beyond the scope of this lesson. Just know that to create a property, you define a method and place the @property decorator above it. This turns the method into a property, so it can be accessed like an attribute while internally calling the decorated method.
+
+That takes us to getters. Here's how to create one with the @property decorator:
+
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+
+    @property
+    def radius(self): # A getter to get the radius
+        return self._radius
+  
+    @property
+    def area(self):  # A getter to calculate area
+        return 3.14 * (self._radius ** 2)
+
+my_circle = Circle(3)
+
+print(my_circle.radius) # 3
+print(my_circle.area) # 28.26
+
+This example gets a radius and the area of a circle.
+
+Notice how we used _radius instead of radius inside the class. The underscore is a common Python convention to show that an attribute is meant to be private. In other words, it signifies that it's for internal use and should not be accessed directly from outside the class.
+
+To make a setter to create the radius, for example, you have to define another method with the same name and use @<property_name>.setter above it:
+
+Using self.radius inside __init__ ensures the setter runs during object creation, so invalid radius values are caught immediately.
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius # Calling the setter
+
+    @property
+    def radius(self):  # A getter to get the radius
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):  # A setter to set the radius
+        if value <= 0:
+            raise ValueError('Radius must be positive')
+        self._radius = value
+
+my_circle = Circle(3)
+print('Initial radius:', my_circle.radius) # Initial radius: 3
+
+my_circle.radius = 8
+print('After modifying the radius:', my_circle.radius) # After modifying the radius: 8
+
+In this example, the radius setter is not just setting the radius for the circle, it's also running a validation that makes sure the radius is not a negative number.
+
+Once you define getters and setters, Python automatically calls them under the hood whenever you use normal attribute syntax:
+
+my_circle.radius # This will call the getter
+my_circle.radius = 4 # This will call the setter
+
+Note that inside the setter, you cannot use same name of the property when assigning a new value. That's because self.radius = value will call the setter within the setter method itself, leading to infinite recursion and a RecursionError. So you must always use the underscore-prefixed form self._radius = value.
+
+Just like you can control how an attribute is accessed through getter and how it is modified with setter, you can also control how it is deleted using a deleter.
+
+A deleter runs custom logic when you use the del statement on a property. To create one, you use the @<property_name>.deleter decorator:
+
+class Circle:
+    def __init__(self, radius):
+        self.radius = radius
+
+    # Getter
+    @property
+    def radius(self):
+        return self._radius
+
+    # Setter
+    @radius.setter
+    def radius(self, value):
+        if value <= 0:
+            raise ValueError("Radius must be positive")
+        self._radius = value
+
+    # Deleter
+    @radius.deleter
+    def radius(self):
+        print("Deleting radius...")
+        del self._radius
+
+Here's how the deleter can be put to use:
+
+# Create circle object with a radius
+my_circle = Circle(33)
+print("Initial radius:", my_circle.radius)  # 33
+
+# Delete the radius
+# This calls the deleter
+del my_circle.radius # Deleting radius...
+print("Radius deleted!") # Radius deleted!
+
+# Try to access radius after deletion
+try:
+    print(my_circle.radius)
+except AttributeError as e:
+    print("Error:", e) # Error: 'Circle' object has no attribute '_radius'
+
+The takeaway from this is that:
+
+    Getters let you retrieve a value or even compute a value on the fly.
+    Setters let you modify the values safely by running checks before assignment.
+    Properties are what tie these getters and setters together so you can write logic while still using dot notation.
+    Deleters let you define what happens when an attribute is deleted.
+
+Questions
+
+What lets you run logic behind the scenes while getting or setting an attribute's value?
+Importing external modules.
+Class inheritance.
+Properties
+Direct attribute access.
+
+What ties getters and setters together so you can execute logic while maintaining dot notation access?
+Properties
+Decorators
+Class inheritance
+Direct method calls
+
+What two decorators are used to create getters and setters for a property?
+@getter and @setter
+@attr.get and @attr.set
+@compute and @assign
+@property and @<property_name>.setter
+
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Inheritance and Polymorphism
+
+What Is Inheritance and How Does It Promote Code Reuse?
+
+Inheritance is the next key concept of object-oriented programming (OOP) we'll cover.
+
+Let's take a deeper look at this concept and how it lets you write reusable code.
+
+With inheritance, a subclass (or child class) can use the attributes and methods of a base class (or parent class). This allows you to reuse code, create clear class hierarchies, and customize behavior without rewriting everything. You can customize by extending existing methods or overriding them in the child class.
+
+Here's the basic syntax for inheritance:
+
+class Parent:
+    # Parent attributes and methods
+
+class Child(Parent):
+    # Child inherits, extends, and/or overrides where necessary
+
+For the Child class to inherit from the Parent class, you have to pass the Parent to the Child.
+
+This style is called single inheritance, since a child class inherits from exactly one parent class.
+
+Here's an example:
+
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def sound(self):
+        return f'{self.name} makes a sound'
+
+class Dog(Animal):
+    bark = 'woof! woof!! woof!!!'
+
+jack = Dog('Jack')
+print(jack.sound())  # Jack makes a sound
+print(jack.bark)  # woof! woof!! woof!!!
+
+You can see that we're able to reuse the self.name attribute and the sound() method from the parent Animal class in the child Dog class.
+
+Let's override the sound() method from the parent Animal class in the child Dog class so we can have sound() use the bark class variable:
+
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def sound(self):
+        return f'{self.name} makes a sound.'
+
+class Dog(Animal):
+    bark = 'woof! woof!! woof!!!'
+
+    # Override sound() to use bark class variable
+    def sound(self):
+        return f'{self.name} barks {self.bark}'
+
+jack = Dog('Jack')
+print(jack.sound())  # Jack barks woof! woof!! woof!!!
+
+If you want to keep the return value of sound() and add the bark class variable later, you can extend sound() by using the super() function:
+
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def sound(self):
+        return f'{self.name} makes a sound'
+
+class Dog(Animal):
+    bark = 'woof! woof!! woof!!!'
+
+    # Call Animal.sound(), then append bark
+    def sound(self):
+        base = super().sound()
+        return f'{base}, then {self.name} barks {self.bark}'
+
+jack = Dog('Jack')
+print(jack.sound())  # Jack makes a sound, then Jack barks woof! woof!! woof!!!
+
+In this example, base is the result of calling the sound() method from the Animal class, and then we append the Dog class's specific sound to it. This way, you can extend the functionality of the parent Animal class while still keeping its original behavior.
+
+There's also multiple inheritance, where a child class can inherit from more than one parent class.
+
+Here's the basic syntax of multiple inheritance:
+
+class Parent:
+    # Attributes and methods for Parent
+
+class Child:
+    # Attributes and methods for Child
+
+class GrandChild(Parent, Child):
+    # GrandChild inherits from both Parent and Child
+    # GrandChild can combine or override behavior from each
+
+A simple way to demonstrate multiple inheritance is with a frog, which can both walk on land and swim in water:
+
+class Walker:
+    def walk(self):
+        return 'I can walk on land'
+
+class Swimmer:
+    def swim(self):
+        return 'I can swim in water'
+
+# Amphibian inherits from both Walker and Swimmer
+class Amphibian(Walker, Swimmer):
+    def __init__(self, name):
+        self.name = name
+
+    def introduce(self):
+        return f"I'm {self.name} the frog. {self.walk()} and {self.swim()}."
+
+frog = Amphibian('Freddy')
+print(frog.introduce())
+# Output: I'm Freddy the frog. I can walk on land and I can swim in water.
+
+Questions
+
+What is the primary purpose of inheritance in object-oriented programming?
+To create identical copies of a parent class.
+To allow a child class to reuse and extend attributes/methods from a parent class.
+To make all methods in a class private.
+To prevent code duplication by merging unrelated classes.
+
+What is multiple inheritance in Python?
+A child class inheriting from one parent class.
+A parent class with multiple child classes.
+A child class inheriting from multiple parent classes.
+A class that cannot inherit at all.
+
+How do you make a child class inherit from a parent class in Python?
+By calling Parent.inherit(Child).
+By copying all methods manually.
+By using the extends keyword.
+By passing the Parent class as an argument to the Child class.
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Inheritance and Polymorphism
+
+What Is Polymorphism and How Does It Promote Code Reuse?
+
+Polymorphism is the next key concept of object-oriented programming (OOP) we will talk about.
+
+With polymorphism, you have access to an interface where you can interact with many objects of the same kind.
+
+Let's take a deeper look at polymorphism and how it lets you reuse code.
+
+Polymorphism allows methods in different classes to share the same name but perform different tasks. You call the same method name on different objects, and each responds in its own way.
+
+Here's the basic example of polymorphism:
+
+class A:
+   def action(self): ...
+
+class B:
+   def action(self): ...
+
+class C:
+   def action(self): ...
+
+Class().method()  # Works for A, B, or C
+
+Here's an example using different animal sounds to depict polymorphism:
+
+class Cat:
+   def speak(self):
+       return "A cat meow"
+
+class Bird:
+   def speak(self):
+       return "A bird tweet"
+  
+class Monkey:
+   def speak(self):
+       return "A monkey ooh ooh aah aah ooh ooh aah aah"
+
+def animal_sound(animal):
+   print(animal.speak())
+
+animal_sound(Cat())
+animal_sound(Bird())
+animal_sound(Monkey())
+
+In this example, animal_sound() is a function that takes any object with a speak() method. 
+
+When you pass in a Cat, Bird, or Monkey, it calls the speak() method of the object and prints the result. Because each class defines speak() differently, you get different outputs from the same function. That's polymorphism in action.
+
+Here's another example, this time with instances and an attribute:
+
+class Twitter:
+   def __init__(self, content):
+       self.content = content
+
+   def post(self):
+       return f"🐦 Tweet: '{self.content}' (280 chars max)"
+
+class Instagram:
+   def __init__(self, content):
+       self.content = content
+
+   def post(self):
+       return f"📸 Instagram Post: '{self.content}' + ✨ filters"
+
+class LinkedIn:
+   def __init__(self, content):
+       self.content = content
+
+   def post(self):
+       return f"💼 LinkedIn Article: '{self.content}' (Professional Mode)"
+
+def start(social_media):
+   print(social_media.post())  # Calls .post() on any object
+
+# Instances
+tweet = Twitter('Just learned Python polymorphism!')
+photo = Instagram('Sunset vibes 🌅')
+article = LinkedIn('Why OOP matters in 2024')
+
+# The polymorphic calls - same function, different outputs
+start(tweet) # 🐦 Tweet: 'Just learned Python polymorphism!' (280 chars max)
+start(photo) # 📸 Instagram Post: 'Sunset vibes 🌅' + ✨ filters
+start(article) # 💼 LinkedIn Article: 'Why OOP matters in 2024' (Professional Mode)
+
+There's also a kind of polymorphism called inheritance-based polymorphism.
+
+In inheritance-based polymorphism, a parent class defines a method, and multiple child classes override that method in their own way. You can then call the same method on any child object, and it behaves differently depending on which child class it is.
+
+Here's an example:
+
+class Animal:
+   def speak(self):
+       return 'Some generic sound'
+
+class Cat(Animal):
+   def speak(self):
+       return 'A cat meow'
+
+class Dog(Animal):
+   def speak(self):
+       return 'A dog barks woof woof'
+
+class Monkey(Animal):
+   def speak(self):
+       return 'A monkey ooh ooh aah aah ooh ooh aah aah'
+  
+print(Cat().speak()) # A cat meow
+print(Dog().speak()) # A dog barks woof woof
+print(Monkey().speak()) # A monkey ooh ooh aah aah ooh ooh aah aah
+print(Animal().speak()) # Some generic sound
+
+You can see that each child class of the parent Animal class overrides the speak() method to provide its own implementation. So when you call the speak() method on an instance of each subclass, it returns the specific sound associated with that animal.
+
+You can also take things further and do the calling in a list, then loop through the list to display what the speak() method returns for each:
+
+animals = [Cat(), Dog(), Monkey()]
+
+for animal in animals:
+   print(animal.speak())
+
+# Output:
+# A cat meow
+# A dog barks woof woof
+# A monkey ooh ooh aah aah ooh ooh aah aah
+
+Questions
+
+What is polymorphism in object-oriented programming?
+When a class cannot have methods with the same name.
+When different classes can use the same method name but implement it differently.
+When a method must be unique across all classes.
+When a child class deletes a parent class's method.
+
+In inheritance-based polymorphism, what must a child class do to provide its own implementation of a method defined in the parent class?
+Override the method by redefining it with the same name.
+Declare the method as @static.
+Delete the parent method first.
+Use the @polymorphic decorator.
+
+What is the key benefit of inheritance-based polymorphism?
+It forces all child classes to implement identical behavior.
+It prevents child classes from modifying parent methods.
+It allows calling the same method name on different child objects, with each executing its own version.
+It merges all child methods into the parent class.
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Inheritance and Polymorphism
+
+What is Name Mangling and How Does it Work?
+
+In a previous lesson, you learned about prefixing attributes with a single underscore and a double underscore.
+
+To remind you of the difference between them, a single underscore is a convention that means the attribute is meant for internal use in the class and should not be directly accessed from outside the class. Double underscore, on the other hand, prevents that attribute from being accessed directly from outside the class.
+
+Here's an example that demonstrates how the two work:
+
+class Example:
+    def __init__(self):
+        self._internal = 'I can be accessed from outside the class, but should not'
+        self.__private = 'You cannot access me directly from outside the class'
+
+obj = Example()
+
+print(obj._internal) # I can be accessed from outside the class, but should not
+print(obj.__private)  # AttributeError: 'Example' object has no attribute '__private'
+
+Prefixing an attribute with a double underscore triggers Python's name mangling process, in which Python internally renames the attribute by adding an underscore and the class name as a prefix, turning __attribute into _ClassName__attribute.
+
+To see this in action, you create an instance of the class and use the __dict__ special attribute of that instance, which is a dictionary containing the object's attributes:
+
+class Example:
+    def __init__(self, internal, private):
+        self._internal = internal
+        self.__private = private
+
+example1 = Example(
+    'I can be accessed from outside the class, but should not',
+    'I cannot be accessed directly from outside the class'
+)
+
+print(example1.__dict__)
+
+The result would be:
+
+{
+  '_internal': 'I can be accessed from outside the class, but should not',
+  '_Example__private': 'I cannot be accessed directly from outside the class'
+}
+
+As you can see, the __private attribute is stored as _Example__private. This means you can still access that attribute outside the class this way:
+
+class Example:
+    def __init__(self, internal, private):
+        self._internal = internal
+        self.__private = private
+
+example1 = Example(
+    'I can be accessed from outside the class, but should not',
+    'I cannot be accessed directly from outside the class'
+)
+example2 = Example(
+    'I should not be accessed from outside the class',
+    'But I can be accessed from outside the class with name mangling'
+)
+
+print(example1._Example__private) # I cannot be accessed directly from outside the class
+print(example2._Example__private) # But I can be accessed from outside the class with name mangling
+
+So, why does Python do name mangling?
+
+The main purpose of name mangling is to prevent accidental attribute and method overriding when you use inheritance. Here's an example that makes that clear:
+
+class Parent:
+    def __init__(self):
+        self.__data = 'Parent data'
+
+class Child(Parent):
+    def __init__(self):
+        super().__init__()
+        self.__data = 'Child data'
+
+c = Child()
+print(c.__dict__) # {'_Parent__data': 'Parent data', '_Child__data': 'Child data'}
+
+You can see that both the Parent class and the Child that inherits from it have their separate _class__data attributes. This is made possible with name mangling. Otherwise, the Child would have overwritten the Parent data by accident.
+
+Here's what would have happened without allowing Python to do the name mangling, that is if you don't prefix the attributes in both classes with double underscore:
+
+class Parent:
+   def __init__(self):
+       self.data = 'Parent data'
+
+class Child(Parent):
+   def __init__(self):
+       super().__init__()
+       self.data = 'Child data'
+
+c = Child()
+print(c.__dict__)  # {'data': 'Child data'}
+
+So, which should you use to prefix attributes between single underscore (_) and double underscore (__)? It depends. If an attribute is only meant for internal use within the class, stick with a single underscore.
+
+But if you're working with a class that will be inherited, you should use a double underscore so the attribute from the parent doesn't get overridden.
+Questions
+
+What is the difference between a single underscore and a double underscore?
+A single underscore and a double underscore are treated the same way by Python.
+A single underscore makes attributes completely private, while a double underscore makes them protected.
+A single underscore prevents direct access, while a double underscore allows direct access.
+A single underscore is just a convention, while a double underscore triggers name mangling.
+
+What is name mangling?
+A process in which Python converts all attributes into methods for easier access.
+A process in which Python deletes attributes with a single underscore to keep them hidden.
+A process in which Python changes __attribute into _ClassName__attribute to avoid accidental overriding in subclasses.
+A process in which Python encrypts private data to make it inaccessible from outside the class.
+
+What happens when you don't prefix attributes in a parent and child classes with a double underscore?
+Both classes keep their own separate copies of the attribute without interfering with each other.
+The child class completely overrides the parent class attribute, and the parent's data is lost.
+The parent class attributes become read-only and cannot be changed by the child class.
+Python raises an error because attributes must always be prefixed with a double underscore.
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Abstraction
+
+What Is Abstraction and How Does It Help Keep Complex Systems Organized?
+
+Now that we've looked at encapsulation, inheritance, and polymorphism, let's discuss the next key concept of object-oriented programming – abstraction.
+
+Abstraction is the process of hiding complex implementation details and showing only the essential features of an object or system. Think of it as focusing on what something does rather than how it does it.
+
+Abstraction is not limited to Python. It's a programming concept that can be implemented in many languages that support object-oriented programming.
+
+To illustrate abstraction, imagine you're driving a car. When you're in the driver's seat, you interact with essential parts like the steering wheel, shifter, and the accelerator and brake pedals. You don't need to know the intricate details of how engine works, how the transmission shifts gears, or the physics behind the braking system, as all of those are the complex implementation details.
+
+That's an abstraction at work! It provides you with a simplified interface to interact with a complex system.
+
+In the case of a car again, the simplified interface is the steering wheel, brakes, and accelerator, while the complex system is the car itself.
+
+As for how Python implements abstraction, it does so through the abc module.
+
+This module provides the ABC class (standing for “abstract base class”) and the @abstractmethod decorator.
+
+ABC is the class that is meant to be inherited from, but you cannot create direct objects from it. It is what defines a common interface of methods and properties that its subclasses must implement.
+
+On the other hand, an abstract method is a method declared in an Abstract Base Class (ABC) using the @abstractmethod decorator. It may have no implementation or a basic default one. However, any subclass must override it to be considered concrete and instantiable, even if a default implementation is provided.
+
+Here's the basic syntax of abstract class in Python:
+
+from abc import ABC, abstractmethod
+
+# Define an abstract base class
+class AbstractClass(ABC):
+    @abstractmethod
+    def abstract_method(self):
+        pass
+
+# Concrete subclass that implements the abstract method
+class ConcreteClassOne(AbstractClass):
+    def abstract_method(self):
+        print('Implementation in ConcreteClassOne')
+
+# Another concrete subclass
+class ConcreteClassTwo(AbstractClass):
+    def abstract_method(self):
+        print('Implementation in ConcreteClassTwo')
+
+Here's a basic example:
+
+from abc import ABC, abstractmethod
+
+class Animal(ABC): # Inherits from abstract base class
+   @abstractmethod # Abstract method decorator
+   def make_sound(self):  # The method subclasses must override
+       pass
+
+# Concrete class that will override the abstract method
+class Dog(Animal):
+   def make_sound(self):
+       print('Woof!')
+
+# Another concrete class that will override the abstract method
+class Cat(Animal):
+   def make_sound(self):
+       print('Meow!')
+
+# Another concrete class that will override the abstract method
+class Monkey(Animal):
+   def make_sound(self):
+       print('Ooh ooh aah aah!')
+
+# Create instances of each concrete class
+animals = [Dog(), Cat(), Monkey()]
+
+# Loop through the instances to call the make_sound method
+for animal in animals:
+   animal.make_sound()
+
+# Output:
+# Woof!
+# Meow!
+# Ooh ooh aah aah!
+
+In this example:
+
+    We are importing the ABC class and abstractmethod from the abc module.
+    We then create an Animal class that inherits from ABC, and create an abstract method make_sound in it that each subclass of Animal must override.
+    We create the concrete classes Dog, Cat, and Monkey, which must override the make_sound abstract method.
+    We instantiate the concrete classes and call their make_sound method to show how each of them implements the make_sound abstract method in its own way.
+
+Remember that you cannot create an instance of the Animal class. Here's what happens if you try to do that:
+
+dog = Animal() 
+# TypeError: Can't instantiate abstract class Animal 
+# without an implementation for abstract method 'make_sound'
+
+The same rule applies to subclasses that don't provide an implementation for the abstract method. Even if you define a subclass of Animal, you can't instantiate it until it overrides make_sound. Here's an example showing that:
+
+class Bird(Animal):
+    pass
+
+bird = Bird()
+# TypeError: Can't instantiate abstract class Bird 
+# without an implementation for abstract method 'make_sound'
+
+Here's another example, this time with an instance attribute you can pass to the instances of the concrete methods:
+
+from abc import ABC, abstractmethod
+
+# The blueprint for any toy that can speak
+class TalkingToy(ABC):
+   def __init__(self, name):
+       self.name = name
+   @abstractmethod
+   def speak(self):
+       pass
+
+class RobotToy(TalkingToy):
+   def speak(self):
+       print(f'{self.name} says beep boop! I am a robot!')
+
+class TeddyBearToy(TalkingToy):
+   def speak(self):
+       print(f"{self.name} says hug me! I'm cuddly!")
+
+class DinosaurToy(TalkingToy):
+   def speak(self):
+       print(f'{self.name} says ROOOOAR!')
+
+# Create toys
+rusty = RobotToy('Rusty')
+fluffy = TeddyBearToy('Fluffy')
+rex = DinosaurToy('Rex')
+
+toys = [rusty, fluffy, rex]
+for toy in toys:
+   toy.speak()
+
+# Output:
+# Rusty says beep boop! I am a robot!
+# Fluffy says hug me! I'm cuddly!
+# Rex says ROOOOAR!
+
+In this example: 
+
+    We have an abstract base class TalkingToy that defines a blueprint for any toy that can speak.
+    The subclasses RobotToy, TeddyBearToy, and DinosaurToy implement the speak method in their own way.
+    When we create instances of these subclasses and call the speak method, each toy speaks in its own unique way.
+
+In conclusion, abstraction in Python simplifies complex systems by increasing reusability.
+
+You've seen how you can reuse a single method from an abstract class across multiple subclasses while forcing each subclass to provide its specific behavior.
+
+This approach keeps your code organized, flexible, and easier to maintain, especially as your application grows.
+Questions
+
+What is the primary goal of abstraction in object-oriented programming?
+To expose all internal implementation details to users.
+To merge multiple classes into one.
+To prevent methods from being overridden in child classes.
+To hide complex logic and only show essential features
+
+How does Python implement abstraction through its ABC module?
+By allowing direct instantiation of abstract classes.
+By using decorators and inheritance to define abstract methods that subclasses must implement.
+By automatically hiding all methods with double underscores.
+By converting classes to functions.
+
+In the car analogy for abstraction, what represents the simplified interface and the complex system?
+The interface is the engine pistons, and the complex system is the steering wheel.
+The interface is the steering wheel, brakes, and accelerator, and the complex system is the engine, transmission, and braking physics.
+The interface is the car manual, and the complex system is the dashboard controls.
+The interface is the fuel type, and the complex system is the tyres.
+
+Skip to content
+Profile
+
+    Python Certification
+    Working with Common Data Structures
+
+What Is an Algorithm and How Does Big O Notation Work?
+
+Every computer program that runs on your device has a specific set of instructions, which are executed in a specific order to complete a task.
+
+The task could be sorting a set of numbers, modifying an image, tracking inventory, or even running your favorite video game.
+
+This is where algorithms come into play. An algorithm is a set of unambiguous instructions for solving a problem or carrying out a task.
+
+You can think of algorithms as "recipes". When you cook, recipes list all the ingredients that you'll need, and provide step by step instructions on how to prepare a dish.
+
+Equivalently, you can think of algorithms as "recipes" that tell computers exactly what should be done and how to do it.
+
+Algorithms have two key characteristics:
+
+    They cannot continue indefinitely. They must finish in a finite number of steps.
+
+    Each step must be precise and unambiguous.
+
+They may have zero, one, or more inputs, and generate one or more outputs.
+
+The steps of an algorithm are independent from any programming language.
+
+But to actually make them run on a computer, you need to implement them in a programming language, like Python or JavaScript.
+
+If an algorithm is correct, the output for any valid input should match the expected output.
+
+In addition to being correct, algorithms should also be efficient.
+
+Algorithm efficiency can be measured in terms of how long they take to run and how much space they require in memory to complete the task.
+
+Knowing an algorithm's efficiency is very important because it gives you an idea of how well it will perform as the input size grows.
+
+For example, sorting 15 integers is not the same as sorting 1 million integers.
+
+As the process grows in size and complexity, if the algorithm is not efficient enough to handle it, you might end up with a very slow computer program that may even crash the entire system.
+
+That's why it's very important to develop and choose the most efficient algorithms possible.
+
+This is where Big O notation becomes very important.
+
+Big O notation describes the worst-case performance, or growth rate, of an algorithm as the input size increases.
+
+The growth rate of an algorithm refers to how the resources it requires increase as the input size grows.
+
+Big O notation focuses on the worst-case performance because this case is very important to understand how efficient the algorithm can be, even in the worst case scenario, regardless of the input.
+
+Going back to our sorting example, sorting 1 million integers should intuitively take more time and resources than sorting 15 integers.
+
+But how much more?
+
+This really depends on the algorithm that you choose to sort them.
+
+Big O notation will not give you an exact number to describe the algorithm's efficiency, but it will give you an idea of how it scales as the input size grows, based on the number of operations performed by the algorithm.
+
+In Big O notation, we usually denote input size with the letter n. For example, if the input is a list, n would denote the number of elements in that list.
+
+Constant factors and lower-order terms are not taken into account to find the time complexity of an algorithm based on the number of operations. That's because as the size of n grows, the impact of these smaller terms in the total number of operations performed will become smaller and smaller.
+
+The term that will dominate the overall behavior of the algorithm will be the highest order term with n, the input size.
+
+For example, if an algorithm performs 7n + 20 operations to be completed, the impact of the constant 20 on the final result will be smaller and smaller as n grows. The term 7n will tend to dominate and this will define the overall behavior and efficiency of the algorithm.
+
+Another example would be an algorithm that takes 20n² + 15n + 7 operations to be completed. The term 20n² will tend to dominate as n grows, so this algorithm would have a quadratic time complexity because the dominant term has n².
+
+Quadratic time complexity is one of many different types of time complexities that you can find in the world of algorithms.
+
+Let's learn about some of the most common ones.
+
+O(1) is known as "Constant Time Complexity". When an algorithm has constant time complexity, it takes the same amount of time to run, regardless of input size.
+
+For example, checking if a number is even or odd will always take the same amount of time, regardless of the number itself.
+
+def check_even_or_odd(number):
+    if number % 2 == 0:
+        return 'Even'
+    else:
+        return 'Odd'
+
+O(log n) is known as "Logarithmic Time Complexity". This means that the time required by the algorithm increases slowly as the input size grows. This is common in problems in which the size of the problem is repeatedly reduced by a constant fraction.
+
+For example, a popular search algorithm called Binary Search has O(log n) worst-case time complexity. This is because it eliminates half of the remaining elements in each comparison, which makes it more efficient overall.
+
+O(n) is known as "Linear Time Complexity". The running time of algorithms with this time complexity increases proportionally to the input size.
+
+For example, a for loop that iterates over all the elements of a list will perform more iterations as the number of list elements increases. If the list is doubled in size, the number of operations will approximately double as well.
+
+for grade in grades:  # grades is a list.
+    print(grade)
+
+O(n log n) is known as "Log-Linear Time Complexity". This is a common time complexity of efficient sorting algorithms, like Merge Sort and Quick Sort.
+
+O(n²) is known as "Quadratic Time Complexity". The running time of these algorithms increases quadratically relative to the input size, which is generally not efficient for real-world problems.
+
+Nested loops are a common example of quadratic time complexity. The inner loop will perform n iterations for each one of the n iterations of the outer loop, resulting in n squared iterations.
+
+for i in range(n):
+    for j in range(n):
+        print("Hello, World!")
+
+Other time complexities include "Exponential Time Complexity", denoted as O(2^n), and "Factorial Time Complexity", denoted as O(n!). Both are inefficient for real-world scenarios.
+
+In this graph, you can compare the growth of the mathematical functions that represent the most common time complexities. Think of the x-axis (horizontal) as the input size and the y-axis (vertical) as the running time of the algorithm.
+
+You can see that the Quadratic Time Complexity (O(n²)) (yellow) grows much faster than the other ones, while the Constant Time Complexity (O(1)) (red) stays constant, even if the input gets larger.
+graph comparing time complexity
+
+Great. So far, you've learned about Big O notation in terms of time requirements, but this notation can also be applied to the context of space requirements.
+
+In this context, it describes how the memory space required by the algorithm grows as the input size grows.
+
+Algorithms with "Constant Space Complexity" O(1) always require a constant amount of memory space, even as the input gets larger.
+
+An example would be an algorithm that only creates and stores a few variables in memory.
+
+In contrast, the space required by algorithms with "Linear Space Complexity" O(n) increases proportionally as the input size grows.
+
+An example of this would be an algorithm that creates and stores a copy of a list of length n.
+
+And finally, the space requirements of an algorithm with "Quadratic Space Complexity" O(n²) increase quadratically as the input size grows.
+
+An example of this would be creating a 2D matrix, where the dimensions are determined by the input size, storing all possible pairs.
+
+Algorithms are the building-blocks of computer programs, while Big O notation is a powerful framework for analyzing how efficient they are, based on how their time and space requirements in the worst-case scenario scale as the input size grows. Understanding their efficiency is very important for developing software that works efficiently in real-world scenarios.
+Questions
+
+Which of the following best describes an algorithm?
+A specific programming language used to write code.
+A set of step-by-step instructions designed to solve a problem or perform a task.
+A type of computer hardware component.
+A software application used for developing and playing games.
+
+What is the primary purpose of Big O notation in the context of algorithms?
+To measure the exact time an algorithm takes to run on a specific computer in seconds.
+To count the total number of lines of code in an algorithm.
+To describe how the resource usage of an algorithm grows as the input size increases.
+To determine the best-case performance of an algorithm.
+
+If an algorithm has a time complexity of O(n), what does this mean about its performance?
+The algorithm's running time increases proportionally with the input size.
+The algorithm's running time remains constant regardless of the input size.
+The algorithm's running time grows exponentially with the input size.
+The algorithm's running time decreases as the input size gets larger.
+Skip to content
+Profile
+
+    Python Certification
+    Working with Common Data Structures
+
+What Are Good Problem-Solving Techniques and Ways to Approach Algorithmic Challenges?
+
+During your learning journey, you should work on developing strong problem-solving skills. These core skills will be essential for tackling real-world problems in your daily work.
+
+Solving algorithmic challenges is a great way to practice. It requires an analytical way of thinking, being able to break the problem down into its core components, and finding a solution that generates the right output efficiently.
+
+But where do you start?
+
+There are several problem-solving techniques that you can use to start approaching these challenges.
+
+As an example, we'll reverse a string in Python.
+
+This is the challenge:
+
+"Given a string, write an algorithm that returns a new string with the characters in reverse order."
+
+The first thing that you should do when you come across this type of problem is to read the description multiple times to make sure that you understand what it says. You may miss critical information if you skip this step or read it too fast.
+
+Then, once you are familiar with the problem, start breaking it down into its core components.
+
+Ask yourself:
+
+    "What is the input?"
+
+    "What is the expected output?"
+
+    "How can I transform the input into the expected output?"
+
+In this problem, you can determine that the input is a string because the challenge starts with "Given a string…"
+
+The output is "a new string with the characters in reverse order."
+
+So you need to take the original string and reverse it.
+
+This initial analysis might seem a bit repetitive at first, but it's very helpful to make sure that you fully understand the requirements.
+
+Then, you should start thinking about how the algorithm that you will develop will transform the input into the output.
+
+During this planning and analysis phase, it's common to use pseudocode to map out the necessary steps.
+
+Pseudocode is a high-level description of the algorithm's logic that is general in nature, and is not based on any specific programming language.
+
+Pseudocode is not as formal as actual code, since it's only intended for humans to read. It should be easy to understand at a glance. Its main purpose is to give a clear idea of the sequence of steps that will be performed.
+
+Pseudocode is usually a mixture of a common written language, like English, with programming constructs, like IF, ELSE, FOR, and WHILE.
+
+This is an example of pseudocode that you may write to solve the "Reverse a String" challenge.
+
+GET original_string
+
+SET reversed_string = ""
+
+FOR EACH character IN original_string:
+  ADD character TO THE BEGINNING OF reversed_string
+
+DISPLAY reversed_string
+
+Note how the steps are outlined in a way that is easy to understand. The words and constructs themselves might vary depending on the standards that you are following.
+
+If you wanted to, you could implement these steps in multiple programming languages following the same logic, since the pseudocode is independent of the programming language.
+
+By this point, you may have already realized that this problem can be solved in many different ways. This isn't the only way to reverse a string.
+
+But remember that choosing the right algorithm is important.
+
+In a previous lesson, you learned about algorithmic complexity and why it is important to choose algorithms that are efficient in terms of time and space.
+
+That's where you will play a vital role as a developer. You will need to choose the most efficient algorithm to solve the challenge.
+
+Thinking through different available algorithms is an important problem-solving skill that you should practice. Take a moment to ask yourself if the solution that you are proposing in your pseudocode is the best one or not.
+
+For example, there are many different algorithms for sorting elements, but some of them are more efficient than others. Bubble sort, for example, is very inefficient for sorting large lists, while Quick Sort is usually more efficient.
+
+For our "Reverse a String" challenge, we could use either one of these approaches, assuming that we are planning to implement our algorithm in Python:
+
+    Using the extended slice syntax [::-1] to get a new reversed string.
+
+    Looping over the characters from left to right and adding the new character to the beginning of the new string.
+
+    Calling the reversed() function to get an iterator with all the characters in reverse order, and then the ““.join() method to concatenate them back into a string.
+
+Which one should you use? That's your choice.
+
+Making these decisions based on your knowledge and experience can make a huge difference in the final performance of your application. Consider different approaches, their efficiency, implications, and implementation.
+
+Ask yourself:
+
+    "How will I approach this problem?"
+
+    "What data structures will I use?"
+
+    "Are the data structures that I chose the most efficient ones for the problem at hand?"
+
+    "Am I covering all possible edge cases?"
+
+Edge cases are specific, valid inputs or conditions that occur at the boundaries of what an algorithm should handle.
+
+For example, in the "Reverse a String" challenge, an edge case would be taking an empty string as input. Are you handling this correctly? If not, consider the best way to handle this edge case and add it to your pseudocode.
+
+Then, once you are happy with your plan, you can move on to the implementation phase. At this phase, you will implement your algorithm in a programming language.
+
+When structuring your program, you should write modular code that is easy to read and understand.
+
+Use the tools of the programming language based on your current knowledge. Some programming languages include built-in solutions for common problems and tasks. Use them if possible.
+
+To be consistent, follow the best practices of the programming language of your choice.
+
+Test your code as you write it and make sure that you are handling edge cases appropriately.
+
+Once your solution is implemented, check if it works correctly for all the examples and potentially refactor your code to make it clearer or simpler.
+
+Going back to your solution is very important. Development is not necessarily a linear, step-by-step process. You can always go back to your code and use your critical thinking skills to improve it.
+
+These are some common problem-solving techniques that you can follow to approach algorithmic challenges. If you practice consistently, you will gradually develop your problem-solving skills.
+Questions
+
+Which of the following is the most important first step when approaching any problem-solving challenge?
+Understand the problem statement, inputs, and constraints.
+Search for existing solutions online.
+Immediately start writing code.
+Guess a solution and then try to make it work.
+
+What is the main purpose of writing pseudocode when solving an algorithmic challenge?
+To write the final, executable version of the code.
+To test the algorithm's performance and find bugs.
+To outline the algorithm's logic in a human-readable, language-agnostic way.
+To automatically generate the actual code for the solution.
+
+Before writing the final code for an algorithmic challenge, why is it important to consider edge cases?
+Edge cases are always the easiest parts of the problem to solve.
+They help ensure the algorithm works correctly for all valid inputs.
+They are only relevant for very simple problems.
+They make the code shorter.
+Skip to content
+Profile
+
+    Python Certification
+    Working with Common Data Structures
+
+How Do Dynamic Arrays Differ From Static Arrays?
+
+Arrays are a fundamental data structure in computer science. All arrays store ordered collections of data, but depending on their type, they may work differently behind the scenes.
+
+Their underlying behavior can have an important effect in the program's efficiency, so let's learn about dynamic and static arrays and their differences, so you can choose the most efficient one for your program.
+
+We'll start with static arrays.
+
+Static arrays have a fixed size. They store elements in adjacent memory locations.
+
+The size of a static array is determined when the array is initialized. Once that specific block of memory is allocated, it's fixed, and cannot be changed while the program is running. This is a key characteristic of static arrays.
+
+Storing elements in adjacent memory locations makes the data retrieval process more efficient because the program can store the location of the first element and then use indices to make simple calculations and find the other elements in memory.
+
+Thanks to this, accessing the values of a static array takes constant time O(1), which is very efficient.
+
+You can use a static array when you know the number of elements that will be stored in advance. It's also helpful when the values will be accessed very frequently, since the access operation is very efficient.
+
+However, this data structure cannot grow or shrink, so if the number of elements that will be stored can vary, you should use a dynamic array instead.
+
+Trying to increase the size of a static array would involve creating a new array and copying all the elements from the old array to a new one, which is inefficient. In that case, a dynamic array would be much better because it handles this process automatically.
+
+Python does not include traditional static arrays as built-in data structures.
+
+But other programming languages, like Java, do support them. This is an example of a static array in Java that can store three integers:
+
+int[] numbers = new int[3]; 
+
+Arrays in Python are dynamic, so let's take a look at those.
+
+Dynamic arrays are more flexible because they can grow or shrink automatically while the program is running.
+
+They work through an automatic resizing mechanism that copies the elements into a new array when the original array is full. The process is done efficiently because the size of the new array is chosen in an efficient way that makes these computationally expensive operations less frequent.
+
+Accessing the elements of a dynamic array takes constant time O(1), so this operation is very efficient.
+
+Inserting an element in the middle of the array takes linear time O(n) because the elements after it need to be relocated.
+
+Inserting an element at the end of the array takes constant time O(1) if there is still space available in the dynamic array, but if the array is full and needs resizing, this operation has a O(n) complexity.
+
+You should use dynamic arrays when you don't know in advance the number of values that you will need to store in the array. They are also helpful when you will be frequently inserting and deleting elements.
+
+Python's built-in list data structure works as a dynamic array. You can create a list by writing the elements within square brackets, separated by commas.
+
+numbers = [3, 4, 5, 6]
+
+You can access an element by writing the name of the variable that holds the list, followed by square brackets, and within the square brackets, the corresponding index.
+
+Indices start from 0 for the first element and are incremented by 1 for each subsequent element:
+
+numbers[0]  # 3
+numbers[1]  # 4
+numbers[2]  # 5
+numbers[3]  # 6
+
+To update a value, you just need to reassign it:
+
+numbers[2] = 16
+
+You can append elements to the list with the .append() method:
+
+numbers.append(7)
+
+You can insert elements at a specific index with the .insert() method, passing the index as the first argument and the element itself as the second argument.
+
+numbers.insert(3, 15)
+
+You can remove an element at a specific index with the .pop() method:
+
+numbers.pop(2)
+
+If you don't specify the index, .pop() will remove the last element.
+
+There are other built-in list methods that you can check in the documentation for adding and removing elements quite easily.
+
+That's the power of dynamic arrays, or lists in this case.
+
+In general, you should use static arrays when you know the number of elements in advance and you need to access them frequently, and use dynamic arrays when the number of elements is unknown or variable over time.
+
+You should always consider the tradeoff between the simplicity of static arrays and the flexibility of dynamic arrays. They are both helpful for specific use cases and scenarios. Being able to choose the best one for a given problem is part of the problem-solving skills that you will gradually develop with practice.
+Questions
+
+What is the main difference in size between a static array and a dynamic array?
+Static arrays can change their size after being created, while dynamic arrays cannot.
+Static arrays have a fixed size, while dynamic arrays can change size during runtime.
+There is no practical difference in how their sizes are handled.
+Dynamic arrays are always larger than static arrays.
+
+If you need to add more elements to a static array that is already full, what is the typical process involved?
+The static array automatically expands its memory to fit the new elements.
+You must create a new, larger array and copy all existing elements to it.
+The array automatically converts itself into a dynamic array.
+New elements are simply discarded if the array is full.
+
+In which scenario would a static array typically be a more suitable choice than a dynamic array?
+When the exact number of elements is unknown and changes frequently.
+When you need to store a very large dataset that might grow indefinitely.
+When you require frequent insertions and deletions at arbitrary positions within the collection.
+When the data size is fixed and known at the time the program is written.
+Skip to content
+Profile
+
+    Python Certification
+    Working with Common Data Structures
+
+How Do Stacks and Queues Work?
+
+Stacks and queues are data structures commonly used in computer science.
+
+They're linear data structures that follow specific rules for adding and removing elements.
+Stacks
+
+Let's start with Stacks.
+
+A stack is a Last-in, First-out (LIFO) data structure.
+
+This means that the last element that was added to the stack is the first one to be removed.
+
+Stacks have two ends, which we know as top and bottom.
+
+Elements are added and removed from the top of the stack.
+
+You can think of a stack as a pile of dishes, where you can only place dishes at the top of the pile and take dishes from the top of the pile.
+stack data structure visualization
+
+These operations of adding and removing elements have special names in this context.
+
+Adding an element to a stack is known as a "push" operation. We say that we "push" an element onto the stack when we add it to the top of the stack.
+stack push operation visualization
+
+Removing an element from a stack is known as a "pop" operation. We say that we "pop" an element from the stack when we remove it from the top of the stack.
+stack pop operation visualization
+
+You can see that we don't really perform any operations at the bottom of the stack but we keep it there as a reference.
+
+The time complexity of the push and pop operations is typically O(1), a constant time complexity.
+
+When you push an element onto the stack, the element is simply added to the top.
+
+When you pop an element from the stack, the element at the top is removed.
+
+Therefore, the time it takes to perform these operations remains constant regardless of the size of the stack.
+
+The space complexity of the push and pop operations is usually constant O(1). This means that the amount of memory required to perform these operations remains constant regardless of the size of the stack.
+Queues
+
+Now that you know more about stacks, let's learn about Queues.
+
+A queue is a First-in First-out (FIFO) linear data structure. This means that the first element added to the queue is the first one to be removed.
+
+Queues have two ends: front and back.
+queue data structure visualization
+
+Elements are added to the back of the queue and they are removed from the front of the queue.
+
+You can think of a queue as a line of people waiting to pay for their groceries at the supermarket. The first person in line is the first one to go to the cash register while new people join the line at the end.
+
+The operations of adding and removing elements have special names in the context of a queue.
+
+Adding an element to the back of a queue is known as an "enqueue" operation.
+
+In an enqueue operation, the new element is added to the end of the queue, becoming the end of the line.
+queue enqueue operation visualization
+
+Removing an element from the front of the queue is known as a "dequeue" operation.
+
+In the dequeue operation, the element at the front of the queue is removed, and the next element in line becomes the new front.
+queue dequeue operation visualization
+
+The time complexity of the enqueue and dequeue operations is O(1), constant time. The time it takes to perform these operations remains constant, regardless of the size of the queue.
+
+The space complexity of the enqueue and dequeue operations is usually constant O(1). This means that the amount of memory required to perform these operations remains constant regardless of the size of the queue.
+
+Stacks and queues are data structures used in computer science for organizing and managing elements. Understanding them is essential for building efficient algorithms in various programming applications.
+Questions
+
+What is the primary difference between a stack and a queue?
+Stacks are LIFO, while queues are FIFO.
+Stacks are FIFO, while queues are LIFO.
+Stacks are used for storing data, while queues are used for processing data.
+There is no difference between stacks and queues.
+
+Which operation is used to add an element to a stack?
+push
+pop
+enqueue
+dequeue
+
+Which operation is used to remove an element from a queue?
+push
+pop
+enqueue
+dequeue
+Skip to content
+Profile
+
+    Python Certification
+    Working with Common Data Structures
+
+How Do Singly Linked Lists Work and How Do They Differ From Doubly Linked List?
+
+A linked list is a linear data structure in which each node is connected to the next node in the sequence.
+
+These connections create a data structure that looks like a chain of nodes, where each node stores data and a reference to the next node in the linked list.
+linked list basic structure visualization
+
+We use these references to go from the first node to the next node and so on.
+
+Linked lists are commonly used for implementing other data structures, such as stacks, queues, and deques. They can also be used to implement essential graph algorithms, such as depth-first search and breadth-first search.
+Singly Linked Lists
+
+A singly linked list is a type of linked list in which each node is connected to the next node in the sequence.
+
+Each node is connected to the next one by storing a reference to it.
+
+This single reference per node allows you to traverse the linked list in one direction, from start to end.
+
+The search can only move forward, not backwards.
+
+In this example, you would start at the head node, node A.
+
+The head node is the first node in the linked list.
+
+In a singly linked list, the head node is usually the only node that is directly accessible. This is where the search process will start when you're trying to find a specific node.
+singly linked list traversal visualization
+
+The process will start at node A, then it will continue to node B, then node C, and finally node D, the tail node. It may also stop before that if you implement specific logic in your code.
+
+The tail node is the last node. It's used to determine when the process has reached the end of the linked list.
+Inserting Nodes
+
+One of the great things about linked lists is that they do not have a fixed size. They can be expanded or shrunk as needed by simply updating the connections between the nodes.
+
+You can insert a node at the start, middle, and end of a linked list.
+
+Linked lists don't necessarily need to store the nodes in a specific order. The order will be determined by the connections between the nodes.
+
+However, if you do need to keep the nodes in a specific order for your particular use case, you can do so by implementing that logic in your code and the criteria you implement will determine if the node is inserted at the start, middle, or end.
+
+To insert a node at the start of the linked list, you just need to create a connection between the new node and the node that used to be the head node and make the new node the head node instead.
+
+This is an example, where we insert node E at the start and make this new node the head node of the linked list.
+singly linked list insert at beginning visualization
+
+Inserting a node at the beginning of the linked list has a constant time complexity O(1) because it only requires updating the reference to the head node and the connection between the new head node and the next node in the sequence.
+
+In this example, we are inserting node E at the start of the linked list. This will work correctly. But if we wanted to keep the linked list sorted in alphabetical order, node E would have to be inserted at the end of the linked list instead.
+
+To insert a node at the end of the linked list, first you need to reach the end and then add a connection to the new node to make it the new tail node.
+
+This operation has linear time complexity, O(n), where n is the number of nodes stored in the linked list, because first you need to reach the end of the linked list to make the insertion and this would require going from one node to the next and so on until the end is reached.
+singly linked list insert at end visualization
+
+If the node has to be inserted somewhere in the middle of the linked list, the connections between the nodes will have to be updated too. The previous node in the sequence should be connected to the new node and the new node should be connected to the next node, like in the following diagram.
+singly linked list insert in middle visualization
+
+The insertion operation has a constant space complexity O(1), since inserting a new node only requires creating it and updating the connections between the nodes. This operation doesn't depend on the size of the linked list itself.
+Removing Nodes
+
+Just as you can insert nodes, you can also remove them from the start, middle, and end of the linked list.
+
+To remove a node from the start, you need to update the reference to the head node, which should be the next node in the sequence.
+
+This operation has a constant time complexity O(1), because it only requires updating the linked list's reference to the head node.
+singly linked list remove from beginning visualization
+
+To remove a node from the middle of the linked list, you need to update the reference of the previous node to connect it to the next node in the sequence, forming a sort of "bridge" between them, as you can see in this diagram.
+singly linked list remove from middle visualization
+
+That will remove the node that you want to remove, in this case node B, from the sequence of connections, so it won't be reached the next time you traverse it.
+
+To remove a node from the end of the linked list, you need to remove the connection of the previous node and make this node the new tail node. Now the linked list will end at the new tail node.
+
+This operation has a linear time complexity O(n), because first you have to reach the end of the linked list.
+singly linked list remove from end visualization
+
+The deletion operation has a constant space complexity O(1), because no additional memory is required to delete a node.
+Doubly Linked Lists
+
+Now that you know more about singly linked lists, let's talk about doubly linked lists.
+
+In a doubly linked list, each node stores two references: a reference to the next node and a reference to the previous node in the sequence.
+
+This means that doubly linked lists can be traversed in both directions.
+doubly linked list structure visualization
+
+In this type of linked list, it's also common to keep a reference to the tail node in the linked list itself to start the traversal from the end if necessary.
+
+That sounds great, right? They're more flexible than singly linked lists.
+
+However, doubly linked lists do require more memory than singly linked lists because each node stores two references instead of one.
+
+This is something that you should keep in mind when you're choosing the right data structure for your project.
+
+There is a tradeoff.
+
+The insertion and deletion operations work exactly the same. The only difference is that now you will need to update two references per node and keep track of the reference to the tail node to insert elements at the end of the doubly linked list very efficiently and start the traversal process from the back, if necessary.
+
+Singly and doubly linked lists are essential data structures in computer science used for storing and manipulating elements in a sequential order. Understanding their differences is essential for choosing the right one for your specific application.
+Questions
+
+What is a linked list?
+A data structure that stores elements in a contiguous block of memory.
+A data structure where nodes are connected using references.
+A data structure that is always sorted.
+A data structure that has a fixed size.
+
+What is the difference between a singly linked list and a doubly linked list?
+Singly linked lists have a head and tail node, while doubly linked lists do not.
+Singly linked lists can only be traversed in one direction, while doubly linked lists can be traversed in both directions.
+Singly linked lists are more efficient to insert elements at the end, while doubly linked lists are more efficient to insert elements at the beginning.
+Singly linked lists require more memory than doubly linked lists.
+
+What is the time complexity of inserting a node at the beginning of a singly linked list?
+O(1)
+O(n)
+O(n^2)
+O(log n)
+
+Skip to content
+Profile
+
+    Python Certification
+    Working with Common Data Structures
+
+How Do Maps, Hash Maps and Sets Work?
+
+In this lesson, we'll go over maps, hash maps, and sets. But before we do that, let's define Abstract Data Types.
+
+An Abstract Data Type (ADT) is a conceptual representation of a data type, including what operations can be performed on the data and the properties of that data.
+
+Abstract Data Types are like blueprints that describe what operations can be performed, not how they are performed. They separate the interface from the actual implementation of the operations.
+
+A map is an ADT that manages collections of key-value pairs and their operations in a very specific and efficient way.
+
+In a map, every value is associated with a specific key.
+
+One of the key characteristics of maps is that every key must be unique. This uniqueness allows for direct lookups, which makes the process of retrieving information much more efficient.
+
+Only keys must be unique, values can be repeated.
+
+The map Abstract Data Type also defines important operations, such as inserting key-value pairs, getting the value associated with a key, updating the value associated with a key, removing a key-value pair, and checking if a key exists in the map.
+
+It doesn't actually specify how these operations should be performed, it just lists them as part of the available operations of the data type.
+
+A hash map, also known as a hash table, is a concrete implementation of the map Abstract Data Type.
+
+Hash maps use a technique called "hashing" to perform common operations very efficiently.
+
+Hashing essentially works by generating a hash value for each element using a hash function.
+
+The hash value is generated based on the key of the key-value pair and it's used to calculate an index in an underlying array, the actual data structure where the key-value pairs are stored.
+
+But you might be asking yourself: What happens if two keys result in the same index?
+
+Hash maps solve these collisions with clever strategies.
+
+One option is to use the "chaining" strategy, where each array index points to a linked list (another data structure), where all the elements with the same index are stored.
+
+Another strategy is to use "open addressing", which involves searching for the next available index in the array based on a predefined search sequence.
+
+The average case time complexity of hash maps is "Constant Time" O(1) for inserting, retrieving, and deleting key-value pairs.
+
+The worst case time complexity of these operations is Linear Time O(n), which occurs when there are many hash collisions, so the collision resolution strategy has to be applied multiple times.
+
+The space complexity of inserting into a hash map is constant O(1) on the average case, a constant amount of memory to store the new pair. However, in the worst case, it can have linear space complexity O(n) due to a resizing operation of the underlying array. In general, removing an element has a constant space complexity O(1).
+
+This turns the hash table into something similar to a linear data structure where n elements have to be scanned to find the target key. However, this is relatively rare if the hash map is implemented properly.
+
+Python's dictionaries are implemented as hash maps behind the scenes.
+
+To create a Python dictionary, you just need to write the key-value pairs within curly brackets and separate them with a comma. Each key should be separated from its corresponding value with a colon.
+
+my_dictionary = {
+  'A': 1,
+  'B': 2, 
+  'C': 3
+}
+
+In this code, 'A' is the key and 1 is the value:
+
+'A': 1
+
+Alternatively, you can use dict():
+
+my_dictionary = dict(A=1, B=2, C=3)
+
+You can get the value through its corresponding key:
+
+my_dictionary['A']  # 1
+
+You can also update the value associated with a key:
+
+my_dictionary['A'] = 4
+
+And you can remove a key-value pair:
+
+del my_dictionary['A']  
+
+You can also check if a key is in the dictionary (or not):
+
+'C' in my_dictionary
+
+And you can call these methods to get the keys, values, and items of the dictionary, respectively.
+
+my_dictionary.keys()
+my_dictionary.values()
+my_dictionary.items()
+
+Great. Now that you know more about maps and hash maps, let's talk about sets.
+
+Sets are unordered collections of unique elements.
+
+Let's break this concept down into its key components:
+
+    Sets are unordered. The elements of a set are not stored in any specific order, so you cannot access them through indices.
+
+    Sets only contain unique elements. If you try to add the same value twice, only one copy of the value will be kept.
+
+They are analogous to sets in mathematics and they implement the same set operations, like intersection, union, and difference.
+
+One of the main advantages of sets is that they guarantee that the elements will be unique (no duplicates). This is why they are often used to remove duplicates from lists and other data structures.
+
+They are also dynamic. They can adjust to the number of elements that are currently stored. This makes them quite powerful.
+
+The average case time complexity of adding, removing, getting the length of the set, and checking if an element is in the set is "Constant Time" O(1), which is very efficient.
+
+Since sets are implemented as hash tables, the worst case time complexity of adding, removing, and checking membership is "Linear Time" O(n). This may occur when there are multiple hash collisions, transforming the hash table into something similar to a linear data structure, where n scans are required to find the key.
+
+In terms of space complexity, in the average case, inserting an element would have constant complexity O(1), with a new unique element requiring a constant amount of memory. However, in the worst case, there could be a resizing operation of the underlying array, which could take linear space complexity O(n). In general, removing an element would take constant space complexity O(1).
+
+Python has a built-in set data structure that you use to work with sets in your programs.
+
+Behind the scenes, Python sets are implemented using a hash table where only the keys are stored, without any associated values.
+
+Sets can only store objects of immutable data types because their hash values always remain the same. In contrast, the hash values of mutable objects can change when they are mutated. That's why they cannot be part of sets. If the hash value of an object stored in the set changes, the program would not be able to find it anymore.
+
+To define a set in Python, you just need to surround the elements with curly brackets and separate them with commas:
+
+numbers = {1, 2, 3, 4}
+
+To create an empty set, you can call set():
+
+numbers = set()
+
+Note that if you use empty curly brackets, this will automatically create a Python dictionary, not a set, so you must call the set() function to create an empty set.
+
+You can add an element to a set with the .add() method:
+
+numbers.add(5)
+
+You can also remove elements from the set with the .remove() method:
+
+numbers.remove(5)
+
+This will throw a KeyError if the element is not found. But if you don't want to throw an error in that case, you can use the .discard() method instead.
+
+The .pop() method returns an arbitrary element from the set, while the .clear() method removes all elements from the set.
+
+You can test if an element is in a set with the in operator:
+
+5 in numbers
+
+Python also support set operations, including union, difference, symmetric difference, and intersection, which you can perform with these methods:
+
+set_a = {1, 2, 3, 4}
+set_b = {2, 3, 4, 5, 6}
+
+set_a.union(set_b)
+set_a.intersection(set_b)
+set_a.symmetric_difference(set_b)
+set_a.difference(set_b)
+
+Or with their equivalent operators:
+
+set_a | set_b
+set_a & set_b
+set_a ^ set_b
+set_a - set_b 
+
+The average case time complexity for adding, removing, and testing membership is "Constant Time" O(1).
+
+The worst case time complexity for these operations is "Linear Time" O(n) because of the hash map's worst case collision scenario.
+
+You can also check if a set is a subset or superset of another one:
+
+set_a.issubset(set_b)
+set_a.issuperset(set_b)
+
+In general, you should use sets when you need to store a collection of unique items and frequently check for the presence of an item.
+
+Maps, hash maps, and sets are powerful data structures designed for efficient data organization and retrieval. Each one of them has its own unique characteristics and use cases. As a developer, you will need to choose the best one for your project.
+Questions
+
+What is the fundamental difference in the type of data stored by a hash map (or map) compared to a set?
+Hash maps store ordered collections, while Sets store unordered collections.
+Hash maps store unique key-value pairs, while Sets store unique individual elements.
+Hash maps cannot store duplicate values, while Sets can.
+Sets are used for numerical data, while hash maps are for textual data.
+
+What is the main mechanism that allows hash maps and Sets to achieve average-case O(1) (constant time) performance for operations like insertion and lookup?
+They keep all elements sorted, enabling fast binary search.
+They store elements in a linked list, allowing quick traversal.
+They use a hash function to compute a direct memory location for elements.
+They always store a very small number of elements, making all operations fast.
+
+In the context of hash maps and sets, what is a "hash collision"?
+When an element is successfully found after a search.
+When an element is inserted at the very beginning of the collection.
+When the hash map runs out of memory and needs to resize.
+When two different keys or elements produce the same hash value.
+
+Skip to content
+Profile
+
+    Python Certification
+    Searching and Sorting Algorithms
+
+What Is Divide and Conquer, and How Does Merge Sort Work?
+
+The divide and conquer paradigm in computer science is a technique for recursively breaking down problems into smaller sub-problems. One of the key aspects of this technique is recursion, which happens when a function calls itself repeatedly until a base case is reached. In this lesson, we will take a look at the merge sort algorithm to better understand how the divide and conquer technique works.
+
+Let's say we had this list of numbers:
+
+42 37 53 17
+
+The goal is to sort that list from smallest to largest using the merge sort algorithm. The first step is to divide that list in half:
+
+42 37 | 53 17
+
+Then we need to look at the left side of the list:
+
+42 37
+
+We take that sub list and divide in half again until each sub list has only one item in it:
+
+42 | 37
+
+A list with only one item in it is sorted by default. Next we need to merge each of those one element sub lists into a sorted list:
+
+37 42
+
+Then we follow the same process for the right side of the original list:
+
+# right side of original list
+53 17
+
+# divide the list in half
+53 | 17
+
+# merge the lists in sorted order
+17 53
+
+Now that both halves of the original list are sorted, we merge those two halves together and sort the elements:
+
+17 37 42 53
+
+Here is what the algorithm looks like in code:
+
+def merge_sort(arr):
+    if len(arr) <= 1:
+        return arr
+
+    mid = len(arr) // 2
+    left = merge_sort(arr[:mid])
+    right = merge_sort(arr[mid:])
+
+    sorted_list = []
+    i = 0
+    j = 0
+
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            sorted_list.append(left[i])
+            i += 1
+        else:
+            sorted_list.append(right[j])
+            j += 1
+
+    sorted_list.extend(left[i:])
+    sorted_list.extend(right[j:])
+
+    return sorted_list
+
+The time complexity for merge sort would be O(n log n) because the list is continuously divided in half (log n) and then merged together (O(n)). Unlike other sorting algorithms like bubble sort, merge sort is not sorted in place and has a space complexity of O(n).
+Questions
+
+What is the divide and conquer paradigm in computer science?
+A technique for detecting a cycle in function value iterations using just two iterators.
+An algorithm for comparing two elements and swapping them from smallest to largest if needed.
+A technique for recursively breaking down problems into smaller sub problems.
+An algorithm to compute the shortest connecting network for points in a plane.
+
+What is the time complexity for the merge sort algorithm?
+O(n log n)
+O(log n²)
+O(n³ log n)
+O(log n³)
+
+What is the space complexity for the merge sort algorithm?
+O(n²)
+O(1)
+O(n log n)
+O(n)
+Skip to content
+
+    Python Certification
+    Understanding Graphs and Trees
+
+What Are Graphs in Computer Science?
+
+Graphs are data structures used to represent the connections or relationships between objects or entities. They're often used to model networks.
+
+The types of networks that you can model with a graph include social networks, transportation networks, communications networks, and even recommendation systems.
+
+For example, graphs can represent connections between users on a social media platform, or connections between cities on a road network.
+
+They're very versatile.
+
+A graph is often represented as a collection of points or circles connected by lines.
+
+These circles and lines represent the two main components of a graph: nodes and edges.
+A simple graph showing five nodes labeled A, B, C, D, and E connected by edges. Node A connects to B, B connects to A, C, and D, C connects to B and D, D connects to B, C, and E, and E connects to D.
+
+Nodes, also known as vertices, represent the objects or entities that are part of the network modeled by the graph. They could be users, products, stations, cities, or any other entities in the model.
+
+In this example, nodes are represented as circles and labeled with the letters A, B, C, D, and E to distinguish them visually.
+
+Edges are the connections between the nodes. If two nodes are connected by an edge, that means that they're somehow connected in the network.
+
+In this example, there are five edges connecting the different pairs of nodes. Node A is connected to node B. node B is connected to nodes A, C, and D and so on.
+
+The specific meaning of the connection will depend on the context. It may be physical, like a real road that connects two cities, or it could be more abstract, like the connection between two users on a social media platform.
+
+If two nodes are directly connected by an edge, like nodes A and B in this example, they're known as adjacent nodes.
+The same graph with nodes A and B highlighted to illustrate adjacent nodes - two nodes that are directly connected by an edge.
+Types of Graphs
+
+There are different types of graphs with different characteristics and applications. Let's go over some of them.
+Undirected Graphs
+
+Undirected graphs are graphs where the edges don't have a specific direction. This type of edge is usually represented with a straight line between the nodes.
+An example of an undirected graph where all edges are represented as straight lines without arrows, demonstrating that connections work in both directions between nodes.
+
+This means that, if there's an edge connecting nodes A and B, the connection works in both directions: from node A to node B and from node B to node A.
+
+Depending on the network that is being modeled by the graph, this connection can have different meanings.
+
+For example, if you're modeling connections between users of a social media platform, this means that user A is connected to user B and user B is connected to user A. The connection is bidirectional.
+Directed Graphs
+
+In contrast, directed graphs are graphs where the edges do have a specific direction.
+
+If there is a connection from node A to node B, that doesn't necessarily imply that there is a connection from node B to node A.
+
+The edges of a directed graph are often represented as straight lines that end with an arrow to indicate the direction.
+
+Here's an example. In this graph, you can go from node A to node B but not from node B to node A because of the direction of the edge.
+A directed graph example showing the same nodes as before but with arrows indicating specific one-way connections: from A to B, B to C, C to D, D to B, and D to E, demonstrating unidirectional edges.
+
+For example, if you are modeling a road network, this would be helpful to model one-way streets or roads. You can go from city A to city B through that road, but not from city B to city A. You'll need to take a different route.
+
+If there is a two-way connection between the nodes of a directed graph, you can represent this with two directed edges between them.
+
+Here you can see an example. You can go from node B to node D and from node D to node B because there are two edges connecting them, but each edge has a direction.
+A directed graph showing bidirectional connection between nodes B and D with two arrows, one pointing from B to D and another from D to B.
+Vertex Labeled Graphs
+
+A vertex labeled graph is a graph in which each node is associated with a label or identifier in addition to its data. These labels are used to identify the nodes, represent them visually, and store additional information about them.
+
+For example, in a transportation network graph, nodes could be cities and their labels could be their names, coordinates, or any other characteristic that would be helpful for the purposes of the model.
+Cyclic Graphs
+
+Cyclic graphs are directed graphs with at least one cycle.
+
+A cycle is a path that you can follow through the edges of a graph that will take you back to the initial node where you started.
+
+In this example, we have a directed graph. If you look more closely, you'll notice that it has a cycle. If we start at node B, go to node C, and then to node D, we can go back to node B again through the directed edges.
+
+This is a cycle, so this is a cyclic graph.
+A directed graph showing a cycle where you can start at node B, go to node C, then to node D, and back to node B, forming a complete cycle.
+Edge Labeled Graphs
+
+In edge labeled graphs, edges are associated with labels. These labels are usually drawn next to their corresponding edges.
+Weighted Graphs
+
+Weighted graphs are a specific type of edge labeled graph in which the labels on the edges represent values that can be compared and used to perform arithmetic operations.
+
+Some edges have a higher weight, while others have a lower weight. These weights represent the "cost" of the edge.
+
+For example, they may represent the distance between two cities or the time it takes to get from one city to the next.
+
+This is an example of a weighted graph. We write each weight next to its corresponding edge. The "cost" of going from node B to node D is 3, and since this is an undirected graph, that's the same cost of going from node D back to node B.
+A weighted graph showing nodes connected by edges with numerical weights labeled next to each edge, such as weight 3 between nodes B and D.
+Directed Acyclic Graph
+
+Another very common type of graph in computer science is the directed acyclic graph, which is a directed graph with no cycles.
+
+Here's an example. It's a directed graph because each edge has a direction.
+
+It's acyclic because it doesn't have any cycles. Why? Notice that, if you start at a specific node, you cannot go back to it because of the direction of the edges.
+A directed acyclic graph (DAG) with connections from A to B, B to C, B to D, C to D, and D to E, demonstrating how the directional flow prevents any cycles from forming.
+Disconnected Graph
+
+And the last type of graph that we'll cover in this lesson is the disconnected graph.
+
+A disconnected graph is a graph with two or more groups of nodes that are not connected by any edges.
+
+A real-world example would be a social media network, where you have two or more groups of people who don't know each other and who have no friends in common.
+
+This is an example. The first component has the nodes A, B, and C. The second component has the nodes D and E. These components don't have any edges between them, so this is a disconnected graph.
+A disconnected graph showing two separate components: the first component has nodes A, B, and C connected in sequence (A connects to B, B connects to C), and the second component has nodes D and E connected to each other, with no connections between the two components.
+
+You can implement graphs in a variety of ways, including sets, functions, and arrays. You'll learn more about this in the coming lessons.
+
+Understanding graphs and the characteristics of the different types of graphs is essential for solving a wide range of problems in computer science and other fields.
+Questions
+
+What is a graph in computer science?
+A data structure used to represent relationships between objects.
+A mathematical equation.
+A visual representation of data.
+A programming language.
+
+What are the two main components of a graph?
+Points and lines
+Vertices and nodes
+Nodes and edges
+Elements and vertices
+
+What is a directed graph?
+A graph where edges do not have a direction.
+A graph where edges have a direction.
+A graph with more nodes than edges.
+A graph with more edges than nodes.
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Graphs and Trees
+
+How Do Depth First and Breadth First Search Work?
+
+As you start working with data structures and algorithms, you'll soon realize that one of the common operations that you'll need to perform is visiting each node.
+
+This process is known as "traversing" the data structure.
+
+Traversals are used to do something with every single node in the data structure, like printing their values, finding a specific value, or performing certain operations on the nodes.
+
+By systematically visiting each node, you make sure that the process won't skip any nodes.
+
+But how do you determine the order in which you should traverse the data structure? Where should the process start, and how should the next node be selected?
+
+Without a clear way to traverse the data structure, going through it would be like walking through a maze without a specific path to follow.
+
+That's where algorithms like breadth-first search (BFS) and depth-first search (DFS) become really important. They are commonly used to traverse graphs and for finding a path between two nodes.
+
+When they are used to traverse a data structure, they define the order in which the nodes should be visited to make sure that none of them is skipped.
+
+Let's start with breadth-first search (BFS).
+Breadth-First Search (BFS)
+
+Breadth-first search (BFS) is an algorithm that visits all neighboring nodes before moving to the next level in the graph.
+
+It can be used to find the shortest path between two nodes in an unweighted graph because it analyzes all the nodes at each level, so it finds the path with fewest edges first.
+
+This algorithm is commonly implemented using a queue data structure to keep track of the nodes that have been visited. Queues follow the FIFO (first in, first out) method, where the first node that was added to the queue is the first one to be removed.
+
+The algorithm works like this:
+
+    You start at a specific node.
+
+    That node is marked as visited and added to the queue.
+
+    While the queue is not empty, the current node is removed from the queue (dequeued). Then, for each one of its neighbors, if the neighbor has not been visited, it is marked as visited and added to the queue.
+
+One important consideration is that, since breadth-first search (BFS) requires storing a queue in memory, and this queue may have a large number of nodes, the space requirements of this algorithm can be considerable. This is especially true for graphs with a large number of nodes on the same level.
+
+Let's see an example of BFS applied to a specific type of graph called a tree.
+
+You will learn more about trees in an upcoming lesson, but they are essentially graphs with no cycles, where nodes are organized in a hierarchy. Cycles are paths that start and end at the same node.
+
+Let's apply the breadth-first search (BFS) algorithm to this tree:
+A tree diagram showing nodes A through G arranged in a hierarchy. Node A is at the root, with children B and C. Node B has children D and E, and node C has children F and G.
+
+Step 1:
+
+We start at the root of the tree, node A. We add A to the queue and immediately mark it as visited.
+
+    Queue: [A]
+
+    Visited: {A}
+
+Step 2:
+
+We dequeue node A. We add its unvisited children (node B and then node C), to the queue and mark them as visited.
+
+    Queue: [B, C]
+
+    Visited: {A, B, C}
+
+The order in which nodes at the same level are added to the queue is defined by the implementation of the data structure and the order in which the edges (connections) are stored in the graph representation.
+
+If the implementation is consistent, the specific order in which the nodes at the same level are traversed will not affect the correctness of the algorithm. It will still visit every node level by level.
+
+Step 3:
+
+We dequeue node B. We add its unvisited children, (node D and then node E), to the queue and mark them as visited.
+
+    Queue: [C, D, E]
+
+    Visited: {A, B, C, D, E}
+
+Step 4:
+
+We dequeue node C. We add its unvisited children, (node F and then node G), to the queue and mark them as visited.
+
+    Queue: [D, E, F, G]
+
+    Visited: {A, B, C, D, E, F, G}
+
+Step 5:
+
+We dequeue node D. This node does not have any unvisited children, so nothing changes in the visited set.
+
+    Queue: [E, F, G]
+
+    Visited: {A, B, C, D, E, F, G}
+
+Step 6:
+
+We dequeue node E. This node does not have any unvisited children, so nothing changes in the visited set.
+
+    Queue: [F, G]
+
+    Visited: {A, B, C, D, E, F, G}
+
+Step 7:
+
+We dequeue F. This node does not have any unvisited children, so nothing changes in the visited set.
+
+    Queue: [G]
+
+    Visited: {A, B, C, D, E, F, G}
+
+Step 8:
+
+We dequeue G. This node does not have any unvisited children, so nothing changes in the visited set.
+
+    Queue: []
+
+    Visited: {A, B, C, D, E, F, G}
+
+When the queue is empty, the traversal is complete.
+
+The nodes were traversed in this order:
+
+A → B → C → D → E → F → G
+The same tree diagram with arrows showing the BFS traversal order: A to B to C to D to E to F to G, demonstrating level-by-level visitation.
+
+Notice how the algorithm visits the nodes per level.
+
+We start at node A, then move to the next level to visit nodes B and C, then to the next level to nodes D, E, F, and G. That is the core principle of breadth-first search (BFS).
+Depth-First Search (DFS)
+
+While breadth-first search (BFS) first visits all the neighboring nodes at the same level, depth-first search (DFS) follows each branch as deep as possible before it backtracks.
+
+You can imagine this algorithm as exploring a maze by choosing a specific path and following it until you reach a dead end or the exit. If you reach a dead end, you go back and choose a different path.
+
+Depth-first search (DFS) is commonly used to solve puzzles with a single solution, detecting cycles in a graph, and finding connected graph components.
+
+This algorithm can be implemented using recursion or a stack data structure to keep track of the visited nodes.
+
+Stacks follow the LIFO (last in, first out) method, where the last node that was added to the stack is the first one to be removed from the stack.
+
+The algorithm works like this:
+
+    Start at a specific node.
+
+    That node is marked as visited and added to the stack.
+
+    While the stack is not empty, the current node is popped (removed). This is when we "visit" or process it (for example, by printing its value). Then, all of its unvisited neighbors are marked as visited and added to the stack.
+
+One of the limitations of this algorithm is that it's not always guaranteed to find the shortest path between two nodes in an unweighted graph.
+
+Let's see an example of Depth-First Search (DFS) applied to our tree example.
+The same tree diagram as before, showing nodes A through G in their hierarchical structure, ready for DFS demonstration.
+
+Step 1:
+
+We start at the root node A. We mark it as visited and add it to the stack.
+
+    Stack: [A]
+
+    Visited: {A}
+
+Step 2:
+
+We pop node A from the stack.
+
+Then, we add its unvisited children, node B and node C, to the stack. We'll add them in reverse order, C then B, so that B is on top (LIFO) and will be processed next. We also mark them as visited.
+
+    Stack: [C, B]
+
+    Visited: {A, B, C}
+
+Step 3:
+
+We pop node B from the stack.
+
+Then, we add its unvisited children, node D and node E, to the stack in reverse order (E then D). We also mark them as visited.
+
+    Stack: [C, E, D]
+
+    Visited: {A, B, C, D, E}
+
+Step 4:
+
+We pop node D from the stack. This node has no children to add to the stack.
+
+    Stack: [C, E]
+
+    Visited: {A, B, C, D, E}
+
+Step 5:
+
+We pop node E from the stack. This node has no children to add to the stack.
+
+    Stack: [C]
+
+    Visited: {A, B, C, D, E}
+
+Step 6:
+
+We pop node C.
+
+Then, we add its children, node F and node G, to the stack in reverse order (node G then node F) and we mark them as visited.
+
+    Stack: [G, F]
+
+    Visited: {A, B, C, D, E, F, G}
+
+Step 7:
+
+We pop node F from the stack. This node has no children to add to the stack.
+
+    Stack: [G]
+
+    Visited: {A, B, C, D, E, F, G}
+
+Step 8:
+
+We pop node G. This node has no children to add to the stack.
+
+    Stack: []
+
+    Visited: {A, B, C, D, E, F, G}
+
+When the stack is empty, the traversal is completed and all nodes have been visited.
+
+The algorithm visited the nodes in this order:
+
+A → B → D → E → C → F → G
+The tree diagram with numbers showing the DFS traversal order: A(1), B(2), D(3), E(4), C(5), F(6), G(7), demonstrating depth-first exploration of branches.
+
+Notice how we start at node A, and then move all the way down the tree to node B, and nodes D and E, before we move up again to node C and then nodes F and G. This is the core principle of depth-first search (DFS), traversing full paths before backtracking and finding other paths.
+
+In this case, we solved this example using a stack. Alternatively, depth-first search (DFS) can be implemented using recursion, where the function processes the current node and then calls itself for each of its unvisited neighbors. The function call stack implicitly manages the LIFO (last-in, first-out) order.
+
+Both breadth-first search (BFS) and depth-first search (DFS) are essential algorithms for traversing graphs and trees. Breadth-first search (BFS) explores nodes level by level, which is perfect for finding the shortest path in an unweighted graph. On the other hand, depth-first search (DFS) follows one branch as deep as possible before backtracking, which is perfect for solving mazes and detecting cycles. Understanding their pros and cons is helpful for choosing the right one for a particular problem.
+Questions
+
+Which of the following data structures is commonly used to implement a standard breadth-first search (BFS) algorithm?
+Stack
+Queue
+Linked List
+Tree
+
+Which of the following statements about depth-first search (DFS) is true?
+Depth-first search is guaranteed to find the shortest path between two nodes in an unweighted graph.
+Depth-first search visits all neighbors at the current level before moving to the next level.
+Depth-first search is always more space-efficient than BFS.
+Depth-first search is typically implemented using recursion or a stack.
+
+If you wanted to find the shortest path from a starting node to a target node in an unweighted graph, which algorithm would be the most suitable choice?
+Breadth-first search (BFS)
+Depth-first search (DFS)
+Binary search
+Merge sort
+
+
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Graphs and Trees
+
+How Do Matrices and Adjacency Lists Work?
+
+Graphs are very powerful data structures made by a set of nodes, also known as vertices, and edges that connect them.
+
+There are two common ways to implement graphs in your code:
+
+    Adjacency matrices
+
+    Adjacency lists
+
+Let's look more into these, and go over their advantages and limitations.
+Adjacency Matrices
+
+We'll start with adjacency matrices.
+
+An adjacency matrix is a two-dimensional list in which the rows and columns represent the graph's vertices.
+
+The values in the matrix represent the edges or connections between the nodes.
+
+For example, if you have a matrix stored in a variable named matrix, the value stored at matrix[i][j], where i is the row and j is the column, represents the edge or connection between node i and node j.
+
+The values may have different meanings depending on whether the graph is weighted or unweighted:
+
+    If the graph is unweighted, a value of 1 means that there is an edge connecting these nodes, while a value of 0 means there is no edge between them.
+
+    If the graph is weighted, the value would represent the weight of the edge that connects the nodes.
+
+One of the great advantages of using an adjacency matrix is that checking if there is an edge between two nodes takes constant time O(1). This is because the program only needs to find that particular value in the 2D list.
+
+However, this efficiency in finding the edges comes with a tradeoff. Adjacency matrices have a large quadratic space requirement O(V²), where V is the number of nodes in the graph.
+
+This is inefficient for sparse graphs, which are graphs that only have a few edges. Why? Because if the graph is sparse, you will be storing many 0s in the matrix to represent the lack of edges between the nodes, and these 0s will still take space in memory.
+
+Adjacency matrices are also inefficient for finding a node's neighbors because the program has to iterate over the entire row or column to find the 0s and 1s that represent the edges. In the worst case, this process can take O(V) time, where V is the number of nodes in the graph.
+
+Let's see an example of an adjacency matrix for this particular graph:
+A graph with four nodes labeled A, B, C, and D. Node A connects to B, C, and D. Node B connects to A and D. Node C connects to A. Node D connects to A and B.
+
+In the adjacency matrix:
+
+    Each row represents a node. The first row represents node A, the second row represents node B, and so on.
+
+    Each column represents a node too.
+
+    Each value in the matrix represents whether there is an edge between each pair of nodes. A value of 0 means there isn't an edge connecting these nodes, while a value of 1 means there is an edge.
+
+The values in the diagonal represent whether or not each node has a self-loop, an edge that connects the node to itself. In our example, they are all 0s because the graph doesn't have any self-loops.
+
+This is a visual representation of the adjacency matrix to show you how the rows and columns represent the corresponding nodes.
+
+For example, the first row is [0, 1, 1, 1] because node A has edges connecting it to nodes B, C, and D:
+
+#      A  B  C  D
+# A   [0, 1, 1, 1],
+# B   [1, 0, 0, 1],
+# C   [1, 0, 0, 0],
+# D   [1, 1, 0, 0]
+
+And this is the same adjacency matrix, but implemented in Python code:
+
+adjacency_matrix = [
+    [0, 1, 1, 1],  # The neighbors of A are B, C, and D
+    [1, 0, 0, 1],  # The neighbors of B are A and D
+    [1, 0, 0, 0],  # The only neighbor of C is A
+    [1, 1, 0, 0]   # The neighbors of D are A and B
+]
+
+Adjacency Lists
+
+Another common way to represent graphs is by using adjacency lists.
+
+An adjacency list is an array or dictionary that stores all the neighbors of each node.
+
+There are two ways to implement adjacency lists:
+
+    As an array, where each index represents a node and the list stored at that index contains its neighbors.
+
+    As a dictionary, where each key represents a node and the value associated to that key (a list) contains its neighbors.
+
+Adjacency lists are more efficient than adjacency matrices in terms of space requirements. They have a O(V + E) space complexity, where V is the number of vertices (nodes) and E is the number of edges.
+
+It's also efficient for finding all neighbor nodes, since this operation only requires accessing the list associated to the node.
+
+However, there is also a tradeoff.
+
+Adjacency lists are less efficient than adjacency matrices for determining if there is an edge between two nodes.
+
+The search process can take O(V) time in the worst-case, since it may have to search through a very long list of neighbors if the node is connected to all the other nodes in the graph.
+
+Here is an example of an adjacency list for this graph:
+A graph with four nodes labeled A, B, C, and D. Node A connects to B, C, and D. Node B connects to A and D. Node C connects to A. Node D connects to A and B. It's the same image as before.
+
+This adjacency list is implemented as a dictionary. Every key in the dictionary represents a node, and the value associated to that key is a list with all the neighbors of the corresponding node:
+
+adjacency_list = {
+    'A': ['B', 'C', 'D'],
+    'B': ['A', 'D'],
+    'C': ['A'],
+    'D': ['A', 'B']
+}
+
+Alternatively, we could implement it as a 2D list, where each index represents a node. For example, index 0 represents node A, index 1 represents node B, and so on:
+
+adjacency_list = [
+    ['B', 'C', 'D'],  # Neighbors of A (index 0)
+    ['A', 'D'],       # Neighbors of B (index 1)
+    ['A'],            # Neighbors of C (index 2)
+    ['A', 'B']        # Neighbors of D (index 3)
+]
+
+Notice that even if this 2D list may look similar to the adjacency matrix, they are quite different.
+
+    The adjacency matrix stores 0s, 1s, or other values that represent the edges or weights of the edges in the graph.
+
+    The adjacency list stores the actual list of all the neighbors of each node.
+
+This is a very important difference that you should be familiar with.
+
+Both adjacency matrices and adjacency lists are very important for implementing graphs. Choosing between them depends on the graph's size and how you need to use the data. Adjacency matrices are helpful for dense graphs with many edges, while adjacency lists are usually the preferred choice for real-world scenarios, where sparse graphs are more common.
+Questions
+
+For which of the following scenarios is an adjacency matrix the most efficient choice for representing a graph?
+A social network with billions of people and very few connections per person.
+A computer network with only five connections.
+A dense graph where every node is connected to most other nodes.
+A graph where the main operation is to find all neighbors of a specific node.
+
+When would it be more efficient to use an adjacency list over an adjacency matrix?
+When the graph is dense and has many edges.
+When you need to check if an edge exists between two nodes very quickly.
+When the graph has a high number of vertices and many connections.
+When the graph is sparse, with a high number of vertices and a low number of edges.
+
+Which of the following operations is faster in an adjacency matrix compared to an adjacency list?
+Finding all neighbors of a single node.
+Checking if a direct edge exists between two specific nodes.
+Iterating through all nodes in the graph.
+Adding a new node to the graph.
+
+Skip to content
+Profile
+
+    Python Certification
+    Understanding Graphs and Trees
+
+What Are Trees and Tries and How Do They Work?
+
+Trees are very important in the world of computer science.
+
+A tree is a specific type of graph.
+
+For a graph to be classified as a tree, it must:
+
+    Have no loops or cycles (paths where the start and end nodes are the same).
+
+    Be connected (every node can be reached from every other node).
+
+Trees are non-linear data structures that organize nodes in a hierarchy, where nodes may have children, siblings, and parent nodes.
+
+The root node is the very top of a tree. It's the only node in the tree without a parent node. This is the node where you will start traversing the entire data structure, usually with algorithms like breadth-first search (BFS) or depth-first search (DFS).
+
+This is a graphical example of a tree:
+A tree diagram showing a hierarchical structure with node A at the root, nodes B and C as children of A, and nodes D and E as children of C. Node B is a leaf node.
+
+Since nodes are organized in a hierarchy, they have relationships between them.
+
+A parent node is a node that is immediately connected to other nodes below it. In the diagram, node A is the parent node of nodes B and C.
+
+A child node is a node that is immediately connected to a node above it. In the diagram, node D and E are the child nodes of node C.
+
+Nodes D and E are also classified as leaves. A leaf is a node that has no child nodes. You can think of them as the end of the "branches" of the tree.
+
+Tree nodes also have important properties:
+
+    Depth: the length of the path from the root to that node. For example, in the diagram, node D has depth 2 because if you start at the root, you have to go through two edges to reach it.
+
+    Height: the length of the path from that node down to a leaf. For example, node C has a height of 1 because it's one level above the leaf nodes.
+
+    Degree: the number of child nodes each node has. In the diagram, node B has degree 0 because it's a leaf node, so it has no child nodes. Node C has degree 2 because it has two child nodes.
+
+Trees also have a height. The height of a tree is the height of its root node.
+
+There are many different types of trees, including Binary Trees, Binary Search Trees, AVL trees, Red-Black Trees, and B-Trees.
+Binary Trees and Binary Search Trees
+
+These are two of the most commonly used types of trees.
+
+A binary tree is a type of tree in which each node can have at most two child nodes, a left child node and a right child node. Yes, this means that the example that you have seen so far is a binary tree!
+The same binary tree example highlighting that it's a binary tree, with each node having at most two children.
+
+A binary search tree is a more specific version of a binary tree, with a very particular ordering property.
+
+To understand it, first you need to understand subtrees. A subtree is a section of a tree that is a tree itself.
+
+In our tree example, nodes C, D, and E form a tree by themselves, so they are considered a subtree.
+A diagram highlighting a subtree within the main tree, showing nodes C, D, and E forming their own tree structure.
+
+The ordering property of binary search trees (BST) establishes that for every node, all values in its left subtree are less than the node's value, and all values in its right subtree are greater than the node's value.
+
+The left and right subtrees must also be binary search trees themselves.
+
+This ordering makes search, insertion, and deletion operations very efficient if the tree is balanced.
+
+A balanced tree is a tree in which the heights of the left and right subtrees of any node are very similar to make sure that operations remain efficient.
+Tries
+
+Now that you know more about trees and binary search trees, let's dive into tries.
+
+Tries are tree data structures used to store a set of strings.
+
+Tries are also known as prefix trees because they are very efficient for operations that require finding strings based on their prefixes.
+
+Each node in the trie represents a single character of a string.
+
+The root node does not represent any particular character, so you can think of it as representing an empty string.
+
+As you traverse the trie down from the root, the path to a node defines a specific prefix. To find a word, you follow that prefix until you reach the node with the word you are looking for.
+
+Nodes that represent complete words are assigned end-of-word markers.
+
+This is an example of a trie with the words "top", "tea" and "ten".
+
+Notice how the words "tea" and "ten" share the same prefix "te", so the data structure follows the same path until the last character, which is marked as an end-of-word character. In this diagram, this is represented with a red border around the node:
+A trie data structure showing the words 'top', 'tea', and 'ten'. The root node branches to 't', which then branches to 'o' (leading to 'top') and 'e' (leading to 'tea' and 'ten'). End-of-word nodes are marked with red borders.
+
+The worst-case time complexity for the search operation is O(L), where L is the length of the string that you are looking for.
+
+Insertion is also efficient. This operation only requires creating new nodes for the characters that don't exist in the trie yet.
+
+The great advantage of this data structure is that when multiple strings share the same prefix, their paths overlap, so the prefix itself is only stored once.
+
+This efficiency makes tries perfect for implementing features like autocomplete and spell checkers.
+
+However, tries are not efficient for all sets of strings. They can be inefficient if the set of strings has many unique characters. This would require storing many unique characters as individual nodes. These nodes would have to be traversed to find the words, which would not be optimal.
+
+Now that you are familiar with the different types of trees and what they are used for, you can start using them in real-world scenarios. Knowing how to choose the right one is a valuable skill to have when you need to tackle challenges in your daily work.
+Questions
+
+Which of the following statements about a Binary Search Tree (BST) is always true?
+All values in the left subtree of a node are less than the node's value.
+Every node can have up to three children.
+The tree is guaranteed to be perfectly balanced after every insertion.
+It is a specialized tree-like structure optimized for storing strings.
+
+For which of the following tasks is a trie, or prefix tree most effective?
+Finding the smallest value in a large dataset.
+Managing a hierarchical file system on a computer.
+Implementing an autocomplete feature.
+Storing an unordered list of unique numbers.
+
+What is the fundamental difference between a general tree and a Binary Tree?
+A Binary Tree can only store numbers, while a general tree can store any data type.
+A Binary Tree has a root node, but a general tree does not.
+A Binary Tree has no parent-child relationships, unlike a general tree.
+A Binary Tree restricts each node to a maximum of two children, while a general tree does not.
+
+

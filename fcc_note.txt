@@ -1,0 +1,3 @@
+What is the key caracteristic dunder (special) methods in Python ? | They start and end with "__" | They define the behaviour of Python's operators on a specific class
+
+__iter__(), __next__(), __format__()
